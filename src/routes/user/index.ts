@@ -17,7 +17,7 @@ router.post("/add-item", authenticate, rateLimiter, validator.validate(userListV
     return userController
         .addItem(user.id, itemId, itemType)
         .then((response) => responseHandler.successResponse(req, res, response, 201))
-        .catch((err) => responseHandler.errorResponse(req, res, err));
+        .catch((err) => responseHandler.errorResponse(req, res, err, 500));
 });
 
 router.post("/remove-item", authenticate, rateLimiter, validator.validate(userListValidation.removeItem), async (req: AuthRequest, res) => {
@@ -27,10 +27,10 @@ router.post("/remove-item", authenticate, rateLimiter, validator.validate(userLi
     return userController
         .removeItem(id)
         .then((response) => responseHandler.successResponse(req, res, response))
-        .catch((err) => responseHandler.errorResponse(req, res, err));
+        .catch((err) => responseHandler.errorResponse(req, res, err, 500));
 });
 
-router.get("/list-item", authenticate, validator.validate(userListValidation.listItem), async (req: AuthRequest, res) => {
+router.get("/list", authenticate, validator.validate(userListValidation.listItem), async (req: AuthRequest, res) => {
     const user = req.user;
     const page = req.query.page || 1;
     const pageSize = req.query.pageSize || DEFAULT_PAGE_SIZE;
@@ -38,7 +38,7 @@ router.get("/list-item", authenticate, validator.validate(userListValidation.lis
     return userController
         .getPaginatedItems(user.id, Number(page), Number(pageSize))
         .then((response) => responseHandler.successResponse(req, res, response))
-        .catch((err) => responseHandler.errorResponse(req, res, err));
+        .catch((err) => responseHandler.errorResponse(req, res, err, 500));
 });
 
 export default router;

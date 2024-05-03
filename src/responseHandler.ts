@@ -1,4 +1,7 @@
 import {Request, Response} from "express";
+import { Errors } from "./utils/cerror";
+import CError = Errors.CError;
+import { HTTP_STATUS_CODES } from "./constants";
 // const {serializeError} = require('serialize-error');
 const _ = require('lodash');
 
@@ -29,9 +32,12 @@ function isValidJsonMessageObject(message: any) {
  * @access public instance method
  * @return API Response Object
  */
-function errorResponse(req: Request, res: Response, message: string | Error, statusCode = 200) {
+function errorResponse(req: Request, res: Response, message: string | CError | Error, statusCode = HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
 	let errorMessage = ERROR_MESSAGE_TEMPLATE[statusCode] || message;
-	if(message instanceof Error) {
+	if(message instanceof CError) {
+		errorMessage = message.message;
+		statusCode = message.code || statusCode;
+	} else if(message instanceof Error) {
 		errorMessage = message.message;
 	} else if(isValidJsonMessageObject(message)) {
 		errorMessage = JSON.parse(message).message;
@@ -59,7 +65,7 @@ function errorResponse(req: Request, res: Response, message: string | Error, sta
  * @access public instance method
  * @return Response Object
  */
-function successResponse(req: Request, res: Response, data: any, statusCode = 200) {
+function successResponse(req: Request, res: Response, data: any, statusCode = HTTP_STATUS_CODES.SUCCESS) {
 	let response = {
 		success: true,
         status: statusCode,

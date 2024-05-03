@@ -15,6 +15,7 @@ const login = async (req: Request, res: Response) => {
     if (!user) return res.sendStatus(401); // Unauthorized
 
     const passChk = await bcrypt.compare(password, user.password);
+
     if (!passChk) return responseHandler.errorResponse(req, res, "Invalid Password", 401);
 
     const token = jwt.sign({ username: user.username, id: user.id }, secretKey);

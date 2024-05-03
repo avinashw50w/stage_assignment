@@ -3,7 +3,6 @@ import { faker } from "@faker-js/faker";
 import mongoose, { Types } from "mongoose";
 import { Movies, TVShows, UserList, Users } from "../models";
 import { GenreArray } from "../customTypes";
-import { IUserList } from "../models/userList";
 const ObjectId = Types.ObjectId;
 
 const shuffle = (array: any[]) => { 
@@ -14,9 +13,12 @@ const shuffle = (array: any[]) => {
     return array; 
   }; 
 
+const TOTAL_MOVIES = 100;
+const TOTAL_TVSHOWS = 100;
+
 export async function seedDB() {
     console.log('Seeding Started.');
-    await Users.collection.drop();
+    await mongoose.connection.dropDatabase();
     const userId = new ObjectId();
     const pass = bcrypt.hashSync("test", 2);
     await new Users({
@@ -37,9 +39,8 @@ export async function seedDB() {
     }).save();
 
     // movies
-    await Movies.collection.drop();
     const movies = [];
-    for (let i = 0; i < 5000; ++i) {
+    for (let i = 0; i < TOTAL_MOVIES; ++i) {
         movies.push({
             _id: new ObjectId(),
             title: faker.lorem.sentence({ min: 1, max: 5 }),
@@ -55,9 +56,8 @@ export async function seedDB() {
     await Movies.insertMany(movies);
 
     // TV shows
-    await TVShows.collection.drop();
     const tvShows = [];
-    for (let i = 0; i < 5000; ++i) {
+    for (let i = 0; i < TOTAL_TVSHOWS; ++i) {
         const tvShow = {
             _id: new ObjectId(),
             title: faker.lorem.sentence({ min: 1, max: 5 }),
@@ -82,16 +82,15 @@ export async function seedDB() {
     await TVShows.insertMany(tvShows);
 
     // user list
-    await UserList.collection.drop();
     let userList = [];
-    for (let i = 0; i < 3000; ++i) {
+    for (let i = 0; i < Math.floor(TOTAL_MOVIES/2); ++i) {
         userList.push({
             userId,
             itemId: movies[i]._id,
             itemType: "movie",
         })
     }
-    for (let i = 0; i < 3000; ++i) {
+    for (let i = 0; i < Math.floor(TOTAL_TVSHOWS/2); ++i) {
         userList.push({
             userId,
             itemId: tvShows[i]._id,

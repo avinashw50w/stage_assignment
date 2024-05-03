@@ -10,7 +10,6 @@ async function cacheMiddleware(key: string) {
             return data ? responseHandler.successResponse(req, res, data) : next();
 
         } catch (err: any) {
-            console.log('Cache error', err.message);
             return next();
         }
     }

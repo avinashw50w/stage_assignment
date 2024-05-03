@@ -16,6 +16,10 @@ export class RedisCacheService implements ICacheService {
         this.cache = new Redis(url);
     }
 
+    disconnect() {
+        this.cache.disconnect();
+    }
+
     async set(key: string, value: any, ttl: number = DEFAULT_CACHE_TTL): Promise<any> {
         return this.cache.setex(key, ttl, JSON.stringify(value));
     }

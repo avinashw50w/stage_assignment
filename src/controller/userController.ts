@@ -1,7 +1,9 @@
-import { DEFAULT_PAGE_SIZE } from "../constants";
+import { DEFAULT_PAGE_SIZE, HTTP_STATUS_CODES } from "../constants";
 import { ITEM_MOVIE, ITEM_TVSHOW, ItemType } from "../customTypes";
 import { Movies, TVShows, UserList, Users } from "../models";
 import cacheService from "../services/cache/cacheService";
+import { Errors } from "../utils/cerror";
+import CError = Errors.CError;
 
 const getPaginatedItems = async (userId: string, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
     const skip = Number(page - 1) * Number(pageSize);
@@ -52,9 +54,14 @@ const checkItemExists = async (itemId: string, itemType: ItemType) => {
 const addItem = async (userId: string, itemId: string, itemType: ItemType) => {
     const itemExists = await checkItemExists(itemId, itemType);
     if (!itemExists) {
-        throw new Error("Invalid item");
+        throw new CError("Invalid item", HTTP_STATUS_CODES.NOT_FOUND);
     }
-    return UserList.insertMany([{ userId, itemId, itemType }]);
+    return new UserList({ userId, itemId, itemType }).save().then(res => res).catch(err => {
+        if (err?.code === 11000) {
+            throw new CError("Duplicate Entry", HTTP_STATUS_CODES.DUPLICATE_ENTRY);
+        }
+        throw new CError(err.message);
+    });
 };
 
 const removeItem = async (id: string) => {
