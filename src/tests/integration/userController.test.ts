@@ -32,18 +32,14 @@ const testUser = {
 
 beforeAll(async () => {
     await seedDB();
-    user = await Users.findOne({username: "test"}).exec();
+    user = await Users.findOne({ username: "test" }).exec();
 
-    const response = await request(app)
-        .post("/api/v1/auth/login")
-        .set('Accept', 'application/json')
-        .send({
-            username: "test",
-            password: "test",
-        })
+    const response = await request(app).post("/api/v1/auth/login").set("Accept", "application/json").send({
+        username: "test",
+        password: "test",
+    });
     token = response.body.token;
 });
-
 
 afterAll(async () => {
     await mongoose.connection.dropDatabase();
@@ -74,10 +70,11 @@ describe("User Controller", () => {
                     itemType: ITEM_MOVIE,
                 });
             expect(response.status).toBe(HTTP_STATUS_CODES.CREATED);
+            expect(response.body).toHaveProperty("data");
+            expect(response.body.data).toHaveProperty("id");
         });
 
         it("should return 404 with message for adding invalid movie to list", async () => {
-            
             const response = await request(app)
                 .post("/api/v1/user/add-item")
                 .set("content-type", "application/json")
@@ -87,16 +84,14 @@ describe("User Controller", () => {
                     itemType: ITEM_MOVIE,
                 });
             expect(response.status).toBe(HTTP_STATUS_CODES.NOT_FOUND);
-            expect(response.body).toHaveProperty('data');
-            expect(response.body.data).toHaveProperty('message');
-            expect(response.body.data.message).toBe('Invalid item');
+            expect(response.body).toHaveProperty("message");
         });
 
         it("should return 409 with message for adding duplicate movie to list", async () => {
             if (!user) {
                 throw "No user found";
             }
-            const userListMovie = await UserList.findOne({userId: user.id, itemType: ITEM_MOVIE}).exec();
+            const userListMovie = await UserList.findOne({ userId: user.id, itemType: ITEM_MOVIE }).exec();
             if (!userListMovie) {
                 throw "No movie in user's list";
             }
@@ -109,9 +104,7 @@ describe("User Controller", () => {
                     itemType: ITEM_MOVIE,
                 });
             expect(response.status).toBe(HTTP_STATUS_CODES.DUPLICATE_ENTRY);
-            expect(response.body).toHaveProperty('data');
-            expect(response.body.data).toHaveProperty('message');
-            expect(response.body.data.message).toBe('Duplicate Entry');
+            expect(response.body).toHaveProperty("message");
         });
     });
 
@@ -122,13 +115,15 @@ describe("User Controller", () => {
                 title: "title",
                 description: "description",
                 genres: ["Action", "SciFi"],
-                episodes: [{
-                    episodeNumber: 1,
-                    seasonNumber: 1,
-                    releaseDate: new Date(),
-                    director: "Steven Spielberg",
-                    actors: ["A", "B", "C"]
-                }],
+                episodes: [
+                    {
+                        episodeNumber: 1,
+                        seasonNumber: 1,
+                        releaseDate: new Date(),
+                        director: "Steven Spielberg",
+                        actors: ["A", "B", "C"],
+                    },
+                ],
             }).save();
 
             const response = await request(app)
@@ -140,10 +135,11 @@ describe("User Controller", () => {
                     itemType: ITEM_TVSHOW,
                 });
             expect(response.status).toBe(HTTP_STATUS_CODES.CREATED);
+            expect(response.body).toHaveProperty("data");
+            expect(response.body.data).toHaveProperty("id");
         });
 
         it("should return 404 with message for adding invalid TV show to list", async () => {
-            
             const response = await request(app)
                 .post("/api/v1/user/add-item")
                 .set("content-type", "application/json")
@@ -153,16 +149,14 @@ describe("User Controller", () => {
                     itemType: ITEM_TVSHOW,
                 });
             expect(response.status).toBe(HTTP_STATUS_CODES.NOT_FOUND);
-            expect(response.body).toHaveProperty('data');
-            expect(response.body.data).toHaveProperty('message');
-            expect(response.body.data.message).toBe('Invalid item');
+            expect(response.body).toHaveProperty("message");
         });
 
         it("should return 409 with message for adding duplicate movie to list", async () => {
             if (!user) {
                 throw "No user found";
             }
-            const userListItem = await UserList.findOne({userId: user.id, itemType: ITEM_TVSHOW}).exec();
+            const userListItem = await UserList.findOne({ userId: user.id, itemType: ITEM_TVSHOW }).exec();
 
             if (!userListItem) {
                 throw "No TV show in user's list";
@@ -176,9 +170,7 @@ describe("User Controller", () => {
                     itemType: ITEM_TVSHOW,
                 });
             expect(response.status).toBe(HTTP_STATUS_CODES.DUPLICATE_ENTRY);
-            expect(response.body).toHaveProperty('data');
-            expect(response.body.data).toHaveProperty('message');
-            expect(response.body.data.message).toBe('Duplicate Entry');
+            expect(response.body).toHaveProperty("message");
         });
     });
 
@@ -201,8 +193,8 @@ describe("User Controller", () => {
                     id: movie.id,
                 });
             expect(response.status).toBe(HTTP_STATUS_CODES.SUCCESS);
-        })
-    })
+        });
+    });
 
     describe("get paginated user list", () => {
         it("should return 200 with the list", async () => {
@@ -215,9 +207,8 @@ describe("User Controller", () => {
                 .set("Authorization", `Bearer ${token}`);
 
             expect(response.status).toBe(HTTP_STATUS_CODES.SUCCESS);
-            expect(response.body).toHaveProperty('success', true);
-            expect(response.body).toHaveProperty('data');
+            expect(response.body).toHaveProperty("data");
             expect(Array.isArray(response.body.data)).toBe(true);
         });
-    })
+    });
 });

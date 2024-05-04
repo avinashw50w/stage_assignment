@@ -1,9 +1,10 @@
-import { DEFAULT_PAGE_SIZE, HTTP_STATUS_CODES } from "../constants";
+import { DEFAULT_PAGE_SIZE } from "../constants";
 import { ITEM_MOVIE, ITEM_TVSHOW, ItemType } from "../customTypes";
-import { Movies, TVShows, UserList, Users } from "../models";
+import { Movies, TVShows, UserList } from "../models";
 import cacheService from "../services/cache/cacheService";
-import { Errors } from "../utils/cerror";
-import CError = Errors.CError;
+import NotFoundError from "../utils/errors/notFoundError";
+import DatabaseError from "../utils/errors/databaseError";
+import DuplicateEntryError from "../utils/errors/duplicateEntryError";
 
 const getPaginatedItems = async (userId: string, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
     const skip = Number(page - 1) * Number(pageSize);
@@ -12,13 +13,14 @@ const getPaginatedItems = async (userId: string, page = 1, pageSize = DEFAULT_PA
     if (cachedResponse) {
         return cachedResponse;
     }
-    const list = (await UserList.find({ userId })
-        .skip(skip)
-        .limit(pageSize)
-        .sort({ createdAt: -1 })
-        .populate(["movie", "tvShow"])
-        .exec())
-        .map((e) =>
+    const list = (
+        await UserList.find({ userId })
+            .skip(skip)
+            .limit(pageSize)
+            .sort({ createdAt: -1 })
+            .populate(["movie", "tvShow"])
+            .exec()
+    ).map((e) =>
         Object.assign(
             {
                 id: e._id,
@@ -43,25 +45,28 @@ const checkItemExists = async (itemId: string, itemType: ItemType) => {
         [ITEM_TVSHOW]: async (itemId: string) => {
             const tvShow = await TVShows.findById(itemId).exec();
             return !!tvShow;
-        }
-    }
+        },
+    };
     if (itemType in existenceCheck) {
         return existenceCheck[itemType](itemId);
     }
     return false;
-}
+};
 
 const addItem = async (userId: string, itemId: string, itemType: ItemType) => {
     const itemExists = await checkItemExists(itemId, itemType);
     if (!itemExists) {
-        throw new CError("Invalid item", HTTP_STATUS_CODES.NOT_FOUND);
+        throw new NotFoundError();
     }
-    return new UserList({ userId, itemId, itemType }).save().then(res => res).catch(err => {
-        if (err?.code === 11000) {
-            throw new CError("Duplicate Entry", HTTP_STATUS_CODES.DUPLICATE_ENTRY);
-        }
-        throw new CError(err.message);
-    });
+    return new UserList({ userId, itemId, itemType })
+        .save()
+        .then((res) => res)
+        .catch((err) => {
+            if (err?.code === 11000) {
+                throw new DuplicateEntryError();
+            }
+            throw new DatabaseError();
+        });
 };
 
 const removeItem = async (id: string) => {

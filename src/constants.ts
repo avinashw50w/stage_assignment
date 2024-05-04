@@ -13,4 +13,4 @@ export const HTTP_STATUS_CODES: Record<string, StatusCodeTypes> = {
     DUPLICATE_ENTRY: 409,
     VALIDATION_ERROR: 422,
     INTERNAL_SERVER_ERROR: 500,
-}
+};

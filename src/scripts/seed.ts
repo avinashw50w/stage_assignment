@@ -5,19 +5,19 @@ import { Movies, TVShows, UserList, Users } from "../models";
 import { GenreArray } from "../customTypes";
 const ObjectId = Types.ObjectId;
 
-const shuffle = (array: any[]) => { 
-    for (let i = array.length - 1; i > 0; i--) { 
-      const j = Math.floor(Math.random() * (i + 1)); 
-      [array[i], array[j]] = [array[j], array[i]]; 
-    } 
-    return array; 
-  }; 
+const shuffle = (array: any[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
 
 const TOTAL_MOVIES = 100;
 const TOTAL_TVSHOWS = 100;
 
 export async function seedDB() {
-    console.log('Seeding Started.');
+    console.log("Seeding Started.");
     await mongoose.connection.dropDatabase();
     const userId = new ObjectId();
     const pass = bcrypt.hashSync("test", 2);
@@ -83,24 +83,24 @@ export async function seedDB() {
 
     // user list
     let userList = [];
-    for (let i = 0; i < Math.floor(TOTAL_MOVIES/2); ++i) {
+    for (let i = 0; i < Math.floor(TOTAL_MOVIES / 2); ++i) {
         userList.push({
             userId,
             itemId: movies[i]._id,
             itemType: "movie",
-        })
+        });
     }
-    for (let i = 0; i < Math.floor(TOTAL_TVSHOWS/2); ++i) {
+    for (let i = 0; i < Math.floor(TOTAL_TVSHOWS / 2); ++i) {
         userList.push({
             userId,
             itemId: tvShows[i]._id,
             itemType: "tvShow",
-        })
+        });
     }
 
     userList = shuffle(userList);
 
     await UserList.insertMany(userList);
 
-    console.log('Seeding complete.')
+    console.log("Seeding complete.");
 }

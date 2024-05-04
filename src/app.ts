@@ -11,7 +11,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 app.use("/api/v1", routes);
 
 app.use(errorHandler);
@@ -19,12 +18,11 @@ app.use(errorHandler);
 const start = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_CONNECT_URL as string);
-        mongoose.set("debug", process.env.NODE_ENV === 'dev' ? true : false);
+        mongoose.set("debug", process.env.NODE_ENV === "dev" ? true : false);
         // seed db
-        if (String(process.env.SEED_DB) === 'true') {
+        if (String(process.env.SEED_DB) === "true") {
             await seedDB();
         }
-        
     } catch (err) {
         console.error(err);
         process.exit(1);
