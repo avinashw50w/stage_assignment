@@ -13,14 +13,7 @@ const getPaginatedItems = async (userId: string, page = 1, pageSize = DEFAULT_PA
     if (cachedResponse) {
         return cachedResponse;
     }
-    const list = (
-        await UserList.find({ userId })
-            .skip(skip)
-            .limit(pageSize)
-            .sort({ createdAt: -1 })
-            .populate(["movie", "tvShow"])
-            .exec()
-    ).map((e) =>
+    const list = (await UserList.listItem(userId, skip, pageSize, { createdAt: -1 }, ["movie", "tvShow"])).map((e) =>
         Object.assign(
             {
                 id: e._id,
@@ -58,8 +51,7 @@ const addItem = async (userId: string, itemId: string, itemType: ItemType) => {
     if (!itemExists) {
         throw new NotFoundError();
     }
-    return new UserList({ userId, itemId, itemType })
-        .save()
+    return UserList.addItem(userId, itemId, itemType)
         .then((res) => res)
         .catch((err) => {
             if (err?.code === 11000) {

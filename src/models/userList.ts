@@ -17,7 +17,11 @@ export interface IUserListDocument extends Document, IUserList {
     tvShow?: ITVShowDocument;
 }
 
-export interface IUserListModel extends Model<IUserListDocument> {}
+export interface IUserListModel extends Model<IUserListDocument> {
+    addItem(userId: string, itemId: string, itemType: ItemType): Promise<IUserListDocument>;
+
+    listItem(userId: string, skip: number, limit: number, sort: any, populate: any): Promise<IUserListDocument[]>;
+}
 
 const userListSchema = new mongoose.Schema<IUserListDocument, IUserListModel>(
     {
@@ -66,6 +70,20 @@ userListSchema.set("toJSON", {
         };
     },
 });
+
+userListSchema.statics.addItem = async function (userId: string, itemId: string, itemType: ItemType) {
+    return new this({ userId, itemId, itemType }).save();
+};
+
+userListSchema.statics.listItem = async function (
+    userId: string,
+    skip: number,
+    limit: number,
+    sort: any,
+    populate: any
+) {
+    return this.find({ userId }).skip(skip).limit(limit).sort(sort).populate(populate).exec();
+};
 
 export const UserListModel: IUserListModel = mongoose.model<IUserListDocument, IUserListModel>(
     "userList",
