@@ -1,4 +1,4 @@
-import { DEFAULT_CACHE_TTL, DEFAULT_PAGE_SIZE } from "../constants";
+import { DEFAULT_PAGE_SIZE } from "../constants";
 import { ITEM_MOVIE, ITEM_TVSHOW, ItemType } from "../customTypes";
 import { Movies, TVShows, UserList } from "../models";
 import cacheService from "../services/cache/cacheService";

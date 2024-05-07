@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import CustomError from "../utils/errors/customError";
+import { NODE_ENV } from "../config/config";
 
 const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof CustomError) {
@@ -10,7 +11,7 @@ const errorHandler = (err: Error, req: Request, res: Response, next: NextFunctio
             {
                 message: err.message || "Internal Server Error",
             },
-            process.env.NODE_ENV === "dev" ? { stack: err.stack } : null
+            NODE_ENV === "dev" ? { stack: err.stack } : null
         )
     );
 };

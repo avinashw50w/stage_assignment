@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import { ACCESS_TOKEN_SECRET } from "../config/config";
 import { Users } from "../models";
 import AuthenticationError from "../utils/errors/authenticationError";
-dotenv.config();
 
 class AuthController {
-    private static readonly secretKey = process.env.ACCESS_TOKEN_SECRET as string;
+    private static readonly secretKey = ACCESS_TOKEN_SECRET as string;
 
     async login(req: Request, res: Response, next: NextFunction) {
         const { username, password } = req.body as { username: string; password: string };

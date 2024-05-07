@@ -3,8 +3,9 @@ import jwt from "jsonwebtoken";
 import { AuthRequest } from "../customTypes";
 import AuthenticationError from "../utils/errors/authenticationError";
 import AuthorizationError from "../utils/errors/authorizationError";
+import { ACCESS_TOKEN_SECRET } from "../config/config";
 
-const secretKey = process.env.ACCESS_TOKEN_SECRET as string;
+const secretKey = ACCESS_TOKEN_SECRET as string;
 
 function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
     const authHeader = req.headers["authorization"];

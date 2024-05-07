@@ -1,7 +1,6 @@
 import Redis from "ioredis";
-import dotenv from "dotenv";
 import { DEFAULT_CACHE_TTL } from "../../constants";
-dotenv.config();
+import { REDIS_URL } from "../../config/config";
 
 interface ICacheService {
     set(key: string, value: any, ttl: number): Promise<any>;
@@ -13,7 +12,7 @@ interface ICacheService {
 export class RedisCacheService implements ICacheService {
     private cache: Redis;
     constructor() {
-        const url = process.env.REDIS_URL || "redis://localhost:6379";
+        const url = REDIS_URL || "redis://localhost:6379";
         this.cache = new Redis(url);
     }
 
