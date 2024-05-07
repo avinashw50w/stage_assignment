@@ -6,3 +6,4 @@ node_modules/
 *.tsbuildinfo
 .npm
 dist
+coverage
