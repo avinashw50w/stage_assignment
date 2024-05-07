@@ -7,10 +7,11 @@ interface ICacheService {
     set(key: string, value: any, ttl: number): Promise<any>;
     get(key: string): Promise<any>;
     del(key: string): Promise<any>;
+    mget(keys: string[]): Promise<any>;
 }
 
 export class RedisCacheService implements ICacheService {
-    private cache: any;
+    private cache: Redis;
     constructor() {
         const url = process.env.REDIS_URL || "redis://localhost:6379";
         this.cache = new Redis(url);
@@ -31,8 +32,11 @@ export class RedisCacheService implements ICacheService {
             throw err;
         }
     }
-    del(key: string): Promise<any> {
+    async del(key: string): Promise<any> {
         return this.cache.del(key);
+    }
+    async mget(keys: string[]): Promise<any> {
+        return this.cache.mget(keys);
     }
 }
 
